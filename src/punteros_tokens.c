@@ -1,11 +1,11 @@
 /* Matricula: 10240040
    Nombre: VANESSA RODRIGUEZ MARTINEZ
-   Actividad 2: Apuntadores y tokens */
+   Actividad 2 Apuntadores y tokens */
 
 #include <stddef.h>
 #include <stdio.h>
 
-/* Definiciones de tipos y estructuras (Checkpoints 4 y 8) */
+/* 2. Definiciones de TipoToken y Token */
 typedef enum {
     INT, ID, ASIGNA, LIT_INT,
     PUNTOCOMA, PRINT, PARIZQ, PARDER,
@@ -18,7 +18,7 @@ typedef struct {
     int linea;
 } Token;
 
-/* Funciones auxiliares: Checkpoints 2, 3, 4, 6 y 8 */
+/* 3. avanzar_linea y longitud_lexema */
 int avanzar_linea(int *linea) {
     if (linea == NULL) {
         return 0;
@@ -39,6 +39,7 @@ size_t longitud_lexema(const char *texto) {
     return longitud;
 }
 
+/* 4. nombre_tipo y mostrar_token */
 const char *nombre_tipo(TipoToken tipo) {
     switch (tipo) {
         case INT: return "INT";
@@ -55,17 +56,18 @@ const char *nombre_tipo(TipoToken tipo) {
 }
 
 void mostrar_token(const Token *token) {
-    const char *lexema;
+    const char *lex;
     if (token == NULL) {
         puts("[token nulo]");
         return;
     }
-    lexema = (token->lexema != NULL) ? token->lexema : "(NULL)";
+    lex = (token->lexema != NULL) ? token->lexema : "(NULL)";
     printf("[%d] %-11s lexema=%-8s longitud=%zu\n",
            token->linea, nombre_tipo(token->tipo),
-           lexema, longitud_lexema(token->lexema));
+           lex, longitud_lexema(token->lexema));
 }
 
+/* 5. avanzar_cursor y contar_tipo */
 int avanzar_cursor(const Token **cursor, const Token *fin) {
     if (cursor == NULL || *cursor == NULL || fin == NULL) {
         return 0;
@@ -85,6 +87,7 @@ size_t contar_tipo(const Token *inicio, const Token *fin, TipoToken buscado) {
     return total;
 }
 
+/* 6. corregir_lineas y buscar_primero */
 size_t corregir_lineas(Token *inicio, Token *fin, int nueva_linea) {
     size_t cambios = 0;
     if (inicio == NULL || fin == NULL || nueva_linea < 1) return 0;
@@ -107,8 +110,9 @@ const Token *buscar_primero(const Token *inicio, const Token *fin, TipoToken bus
     return NULL;
 }
 
+/* 7. Función principal main única */
 int main(void) {
-    /* Checkpoint 1 y 2: Variables y paso por referencia */
+    /* Checkpoints 1 y 2 */
     int linea_actual = 1;
     int *p_linea = &linea_actual;
     
@@ -120,14 +124,14 @@ int main(void) {
     printf("avance_nulo=%d\n", avanzar_linea(NULL));
     printf("despues=%d\n", linea_actual);
 
-    /* Checkpoint 3: Cadenas */
+    /* Checkpoint 3 */
     const char *lexema = "total";
     printf("lexema=%s | longitud=%zu\n",
            lexema, longitud_lexema(lexema));
     printf("vacio=%zu | nulo=%zu\n",
            longitud_lexema(""), longitud_lexema(NULL));
 
-    /* Checkpoints 5, 6 y 7: Flujo de tokens, arreglo, corrección y cursor */
+    /* Checkpoints 5, 6, 7 y 8: Flujo completo de 12 tokens */
     Token flujo[] = {
         {INT, "int", 1},
         {ID, "total", 1},
@@ -144,12 +148,12 @@ int main(void) {
     };
     
     size_t cantidad = sizeof(flujo) / sizeof(flujo[0]);
-    const Token *fin = flujo + cantidad;
+    Token *fin = flujo + cantidad;
     const Token *cursor = flujo;
     const Token *primero;
 
-    /* Checkpoint 7: Corregir líneas de los últimos tokens */
-    printf("lineas_corregidas=%zu\n", corregir_lineas(flujo + 7, (Token*)fin, 2));
+    /* Corrección de líneas para los últimos 5 tokens */
+    printf("lineas_corregidas=%zu\n", corregir_lineas(flujo + 7, fin, 2));
 
     puts("-- flujo de tokens --");
     while (cursor < fin) {
@@ -158,7 +162,7 @@ int main(void) {
     }
     printf("cantidad=%zu\n", cantidad);
 
-    /* Checkpoint 6 y 8: Conteos y búsquedas */
+    /* Conteos y búsquedas */
     printf("identificadores=%zu\n", contar_tipo(flujo, fin, ID));
     printf("puntos_y_coma=%zu\n", contar_tipo(flujo, fin, PUNTOCOMA));
     printf("avance_en_fin=%d\n", avanzar_cursor(&cursor, fin));
@@ -171,8 +175,8 @@ int main(void) {
     primero = buscar_primero(flujo, fin, DESCONOCIDO);
     printf("desconocido=%s\n", primero == NULL ? "no encontrado" : "REVISAR");
 
-    /* Checkpoint 3 (Prueba frontera intervalo vacío) */
-    printf("intervalo_vacio=%zu\n", corregir_lineas((Token*)fin, (Token*)fin, 3));
+    /* Caso frontera: intervalo vacío */
+    printf("intervalo_vacio=%zu\n", corregir_lineas(fin, fin, 3));
 
     return 0;
 }
